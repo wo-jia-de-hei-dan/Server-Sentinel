@@ -6,6 +6,13 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 
 class LastCheckSnapshotTest {
+    @Test fun `dashboard timestamp uses the newest log instead of an older snapshot`() {
+        val snapshot = LastCheckSnapshot(11_24L, emptyList())
+        val logs = listOf(MonitorLogEntry(12_43L, "自动", emptyList()), MonitorLogEntry(12_28L, "自动", emptyList()))
+
+        assertEquals(12_43L, DashboardLastCheck.timestamp(snapshot, logs))
+    }
+
     @Test fun `round trips last check state`() {
         val original = LastCheckSnapshot(1_720_931_680_000, listOf(LastServerState("default", true, "1.21", "4/20 玩家", "Hello", 38)))
         assertEquals(original, LastCheckSnapshot.fromJson(original.toJson()))

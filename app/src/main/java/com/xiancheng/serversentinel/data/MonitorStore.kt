@@ -5,6 +5,8 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -26,6 +28,9 @@ class MonitorStore(private val context: Context) {
     suspend fun lastCheck(): LastCheckSnapshot? = context.monitorDataStore.data.first()[lastCheckKey]?.let { runCatching { LastCheckSnapshot.fromJson(it) }.getOrNull() }
     suspend fun saveLastCheck(snapshot: LastCheckSnapshot) { context.monitorDataStore.edit { it[lastCheckKey] = snapshot.toJson() } }
     suspend fun logs(): List<MonitorLogEntry> = MonitorLogCodec.decode(context.monitorDataStore.data.first()[logsKey])
+    fun latestLogFlow(): Flow<MonitorLogEntry?> = context.monitorDataStore.data.map { prefs ->
+        MonitorLogCodec.decode(prefs[logsKey]).firstOrNull()
+    }
     suspend fun appendLog(entry: MonitorLogEntry) { context.monitorDataStore.edit { prefs -> prefs[logsKey] = MonitorLogCodec.toJson(MonitorLogCodec.append(prefs[logsKey], entry)) } }
     suspend fun onboardingComplete(): Boolean = context.monitorDataStore.data.first()[onboardingKey] == "true"
     suspend fun setOnboardingComplete() { context.monitorDataStore.edit { it[onboardingKey] = "true" } }

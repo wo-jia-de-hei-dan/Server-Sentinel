@@ -40,6 +40,11 @@ data class LastCheckSnapshot(val checkedAtMillis: Long, val servers: List<LastSe
     }
 }
 
+object DashboardLastCheck {
+    fun timestamp(snapshot: LastCheckSnapshot?, logs: List<MonitorLogEntry>): Long =
+        logs.firstOrNull()?.checkedAtMillis ?: snapshot?.checkedAtMillis ?: 0L
+}
+
 object LastCheckTimeFormatter {
     private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
     private val dateTimeFormatter = DateTimeFormatter.ofPattern("MM-dd HH:mm")
