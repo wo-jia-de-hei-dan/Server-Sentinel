@@ -1,0 +1,12 @@
+<resources>
+    <style name="Theme.ServerSentinel" parent="android:style/Theme.Material.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:colorAccent">#61D6A6</item>
+        <item name="android:navigationBarColor">#0B0E14</item>
+    </style>
+    <style name="Theme.ServerSentinel.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#071B35</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="postSplashScreenTheme">@style/Theme.ServerSentinel</item>
+    </style>
+</resources>
