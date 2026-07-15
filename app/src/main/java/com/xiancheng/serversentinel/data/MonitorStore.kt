@@ -20,9 +20,9 @@ private val onboardingKey = stringPreferencesKey("onboarding_complete")
 class MonitorStore(private val context: Context) {
     suspend fun monitors(): List<MonitorConfig> {
         val raw = context.monitorDataStore.data.first()[monitorsKey] ?: return defaults
-        return runCatching { JSONArray(raw).let { list -> List(list.length()) { index -> list.getJSONObject(index).let { MonitorConfig(it.getString("id"), it.getString("name"), it.getString("host"), it.getInt("port"), it.optBoolean("enabled", true)) } } } }.getOrElse { defaults }
+        return runCatching { JSONArray(raw).let { list -> List(list.length()) { index -> list.getJSONObject(index).let { item -> MonitorConfig(item.getString("id"), item.getString("name"), item.getString("host"), item.getInt("port"), item.optBoolean("enabled", true), runCatching { CheckMode.valueOf(item.optString("checkMode", CheckMode.STATUS.name)) }.getOrDefault(CheckMode.STATUS)) } } } }.getOrElse { defaults }
     }
-    suspend fun save(items: List<MonitorConfig>) { context.monitorDataStore.edit { it[monitorsKey] = JSONArray().also { array -> items.forEach { item -> array.put(JSONObject().put("id", item.id).put("name", item.name).put("host", item.host).put("port", item.port).put("enabled", item.enabled)) } }.toString() } }
+    suspend fun save(items: List<MonitorConfig>) { context.monitorDataStore.edit { it[monitorsKey] = JSONArray().also { array -> items.forEach { item -> array.put(JSONObject().put("id", item.id).put("name", item.name).put("host", item.host).put("port", item.port).put("enabled", item.enabled).put("checkMode", item.checkMode.name)) } }.toString() } }
     suspend fun realtimeEnabled(): Boolean = context.monitorDataStore.data.first()[realtimeKey] == "true"
     suspend fun setRealtime(enabled: Boolean) { context.monitorDataStore.edit { it[realtimeKey] = enabled.toString() } }
     suspend fun lastCheck(): LastCheckSnapshot? = context.monitorDataStore.data.first()[lastCheckKey]?.let { runCatching { LastCheckSnapshot.fromJson(it) }.getOrNull() }
